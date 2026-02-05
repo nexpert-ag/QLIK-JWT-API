@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
       }
     });
 
-    const appId = req.body?.appId || req.query?.appId || '82692ff7-f3ae-4efe-8bb5-7fa603635390';
+    const appId = req.body?.appId || req.query?.appId || 'a39c16ad-370b-4afe-be06-6b569a9e7121';
     const sheetId = req.body?.sheetId || req.query?.sheetId || null;
 
     let qlikUrl = `https://${QLIK_CONFIG.tenantDomain}/sense/app/${appId}`;

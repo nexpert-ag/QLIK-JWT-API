@@ -2,9 +2,9 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
 const QLIK_CONFIG = {
-  issuer: 'xwkva47egjc4kxv.de.qlikcloud.com',
-  keyId: '241267e2-73cd-4b0b-83c8-9b2736fd4315',
-  tenantDomain: 'xwkva47egjc4kxv.de.qlikcloud.com',
+  issuer: 'xwkva47egjc4kxv.de.qlikcloud.com',   // Qlik Cloud URL
+  keyId: '241267e2-73cd-4b0b-83c8-9b2736fd4315', //Public Key
+  tenantDomain: 'xwkva47egjc4kxv.de.qlikcloud.com',  // Qlik Cloud Domain
   audience: 'qlik.api/login/jwt-session'
 };
 

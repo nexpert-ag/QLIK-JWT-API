@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qlik Report</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        #loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #f5f5f5;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        #qlik-container {
+            width: 100%;
+            height: 100vh;
+        }
+        #error {
+            display: none;
+            padding: 20px;
+            background: #fee;
+            color: #c00;
+            border-left: 4px solid #c00;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+    </div>
+    <div id="error"></div>
+    <iframe id="qlik-container" style="display: none;"></iframe>
+
+    <script>
+        (async function() {
+            const TENANT_URL = 'https://xwkva47egjc4kxv.de.qlikcloud.com';
+            const WEB_INTEGRATION_ID = 'gnMbgJ-C676cDio_WiRnIQzddU53SBZd';
+            const DEFAULT_APP_ID = '82692ff7-f3ae-4efe-8bb5-7fa603635390';
+
+            const params = new URLSearchParams(window.location.search);
+            const appId = params.get('appId') || DEFAULT_APP_ID;
+            const sheetId = params.get('sheetId');
+
+            try {
+                const tokenResponse = await fetch(`/api/generate-token?userId=anonymous&userEmail=anonymous@qlik-embed.com&userName=Anonymous+User&appId=${appId}`);
+
+                if (!tokenResponse.ok) {
+                    throw new Error(`Failed to generate token: ${tokenResponse.status}`);
+                }
+
+                const tokenData = await tokenResponse.json();
+
+                if (!tokenData.success || !tokenData.token) {
+                    throw new Error('Invalid token response');
+                }
+
+                const jwtToken = tokenData.token;
+
+                const sessionResponse = await fetch(`${TENANT_URL}/login/jwt-session`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwtToken}`,
+                        'qlik-web-integration-id': WEB_INTEGRATION_ID
+                    },
+                    credentials: 'include'
+                });
+
+                if (!sessionResponse.ok) {
+                    const errorText = await sessionResponse.text();
+                    throw new Error(`Failed to create Qlik session: ${sessionResponse.status}`);
+                }
+
+                let qlikUrl = `${TENANT_URL}/single/?appid=37ce5ed2-3b98-4857-a4d1-0b1b9ab9c560&obj=AdTuE&theme=horizon&opt=ctxmenu,currsel`;
+                if (sheetId) {
+                    qlikUrl += `&sheet=${sheetId}`;
+                }
+
+                const iframe = document.getElementById('qlik-container');
+                iframe.src = qlikUrl;
+                iframe.style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+
+                iframe.onerror = function() {
+                    showError('Failed to load Qlik report.');
+                };
+
+            } catch (error) {
+                showError(error.message);
+            }
+
+            function showError(message) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('qlik-container').style.display = 'none';
+                const errorDiv = document.getElementById('error');
+                errorDiv.textContent = 'Error: ' + message;
+                errorDiv.style.display = 'block';
+            }
+        })();
+    </script>
+</body>
+</html>

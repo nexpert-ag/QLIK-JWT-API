@@ -5,7 +5,7 @@ const QLIK_CONFIG = {
   issuer: 'xwkva47egjc4kxv.de.qlikcloud.com',   // Qlik Cloud URL
   keyId: '241267e2-73cd-4b0b-83c8-9b2736fd4315', //Public Key
   tenantDomain: 'xwkva47egjc4kxv.de.qlikcloud.com',  // Qlik Cloud Domain
-  audience: 'qlik.api/login/jwt-session'
+  audience: 'qlik.api/login/jwt-session'  // Qlik API Endpoinmt
 };
 
 module.exports = async (req, res) => {
@@ -32,6 +32,7 @@ module.exports = async (req, res) => {
       privateKey = privateKey.replace(/\\n/g, '\n');
     }
 
+// User Daten
     const userId = req.body?.userId || req.query?.userId || 'hubspot-user-' + Date.now();
     const userEmail = req.body?.userEmail || req.query?.userEmail || 'user@hubspot.com';
     const userName = req.body?.userName || req.query?.userName || 'HubSpot User';
@@ -40,6 +41,8 @@ module.exports = async (req, res) => {
     const now = Math.floor(Date.now() / 1000);
     const expiresIn = 30 * 60;
 
+// -Payload- Das HErz des JWT.
+// hier werden Daten in ein Json-Objekt gepackt und mit dem private Key signiert & als Token zurückgegeben
     const payload = {
       jti: tokenId,
       sub: userId,
@@ -73,9 +76,10 @@ module.exports = async (req, res) => {
       qlikUrl += `/sheet/${sheetId}`;
     }
 
+// Response ( Was Client zurückbekommt) 
     return res.status(200).json({
       success: true,
-      token: token,
+      token: token,  
       qlikUrl: qlikUrl,
       expiresAt: new Date((now + expiresIn) * 1000).toISOString(),
       user: {

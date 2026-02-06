@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 const QLIK_CONFIG = {
   issuer: 'nexpertag.eu.qlikcloud.com',   
-  keyId: '241267e2-73cd-4b0b-83c8-9b2736fd4315', //Public Key
+  keyId: '95fa1fee-3a10-43c7-b497-071ce891aea6', //Public Key
   tenantDomain: 'nexpertag.eu.qlikcloud.com',  
   audience: 'qlik.api/login/jwt-session'  // Qlik API Endpoinmt
 };
